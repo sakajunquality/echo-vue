@@ -63,7 +63,7 @@ export default {
     }
   },
   watch: {
-    // todos: 'fetchData'
+    todos: 'fetchData'
   },
 
   // computed properties
@@ -122,6 +122,17 @@ export default {
       if (!value) {
         return
       }
+      var xhr = new XMLHttpRequest()
+      var params = 'title=' + value
+      xhr.open('POST', 'http://localhost:9090/add')
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+
+      xhr.onload = function () {
+        // @todo idをちゃんと取ってくる
+        // var id = JSON.parse(xhr.responseText)
+      }
+      xhr.send(params)
+
       this.todos.push({
         id: this.uid++,
         title: value,
