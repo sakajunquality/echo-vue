@@ -34,21 +34,6 @@
 
 <script>
 
-var STORAGE_KEY = 'todos-vuejs-2.0'
-var todoStorage = {
-  fetch: function () {
-    var todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-    todos.forEach(function (todo, index) {
-      todo.id = index
-    })
-    todoStorage.uid = todos.length
-    return todos
-  },
-  save: function (todos) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
-  }
-}
-
 // visibility filters
 var filters = {
   all: function (todos) {
@@ -68,22 +53,17 @@ var filters = {
 
 // app Vue instance
 export default {
-  // watch todos change for localStorage persistence
   data: function () {
     return {
-      todos: todoStorage.fetch(),
+      todos: this.fetchData(),
       newTodo: '',
       editedTodo: null,
-      visibility: 'all'
+      visibility: 'all',
+      uid: null
     }
   },
   watch: {
-    todos: {
-      handler: function (todos) {
-        todoStorage.save(todos)
-      },
-      deep: true
-    }
+    // todos: 'fetchData'
   },
 
   // computed properties
@@ -116,13 +96,34 @@ export default {
   // methods that implement data logic.
   // note there's no DOM manipulation here at all.
   methods: {
+    fetchData: function () {
+      var xhr = new XMLHttpRequest()
+      var self = this
+      xhr.open('GET', 'http://localhost:9090/')
+      xhr.onload = function () {
+        var list = []
+        var todos = JSON.parse(xhr.responseText)
+        for (var key in todos) {
+          list.push(
+            {
+              id: key,
+              title: todos[key]['title'],
+              completed: todos[key]['completed']
+            }
+          )
+        }
+        self.uid = list.length
+        self.todos = list
+      }
+      xhr.send()
+    },
     addTodo: function () {
       var value = this.newTodo && this.newTodo.trim()
       if (!value) {
         return
       }
       this.todos.push({
-        id: todoStorage.uid++,
+        id: this.uid++,
         title: value,
         completed: false
       })

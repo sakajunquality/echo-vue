@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/sakajunquality/echo-vue/todo"
 )
 
@@ -16,6 +17,12 @@ func main() {
 	todoList.Add("test1").Add("test2").Add("test3").Remove(2).Add("test4")
 
 	e := echo.New()
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
+	}))
+
 	e.GET("/", getList)
 	e.POST("/add", addTask)
 
