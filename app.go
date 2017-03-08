@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -23,8 +24,9 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 
-	e.GET("/", getList)
-	e.POST("/add", addTask)
+	e.GET("/todos", getList)
+	e.POST("/todos/add", addTask)
+	e.DELETE("/todos/:id", deleteTask)
 
 	e.Logger.Fatal(e.Start(":9090"))
 }
@@ -35,6 +37,14 @@ func getList(c echo.Context) error {
 
 func addTask(c echo.Context) error {
 	title := c.FormValue("title")
+	// @todo titleのチェック
 	todoList.Add(title)
-	return c.JSON(http.StatusOK, "ok")
+	return c.JSON(http.StatusOK, "ok") // @todo まともなレスポンス返す
+}
+
+func deleteTask(c echo.Context) error {
+	// @todo intで取れてるかのチェック
+	id, _ := strconv.Atoi(c.Param("id"))
+	todoList.Remove(id)
+	return c.JSON(http.StatusOK, "ok") // @todo まともなレスポンス返す
 }

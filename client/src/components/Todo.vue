@@ -99,7 +99,7 @@ export default {
     fetchData: function () {
       var xhr = new XMLHttpRequest()
       var self = this
-      xhr.open('GET', 'http://localhost:9090/')
+      xhr.open('GET', 'http://localhost:9090/todos')
       xhr.onload = function () {
         var list = []
         var todos = JSON.parse(xhr.responseText)
@@ -124,7 +124,7 @@ export default {
       }
       var xhr = new XMLHttpRequest()
       var params = 'title=' + value
-      xhr.open('POST', 'http://localhost:9090/add')
+      xhr.open('POST', 'http://localhost:9090/todos/add')
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
 
       xhr.onload = function () {
@@ -142,7 +142,17 @@ export default {
     },
 
     removeTodo: function (todo) {
-      this.todos.splice(this.todos.indexOf(todo), 1)
+      var delId = todo.id
+      var xhr = new XMLHttpRequest()
+      var self = this
+      xhr.open('DELETE', 'http://localhost:9090/todos/' + delId)
+      xhr.onload = function () {
+        // レスポンスチェック
+        console.info('delete:' + delId)
+        self.todos.splice(self.todos.indexOf(todo), 1)
+        console.log(JSON.parse(xhr.responseText))
+      }
+      xhr.send()
     },
 
     editTodo: function (todo) {
