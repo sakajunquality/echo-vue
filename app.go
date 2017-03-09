@@ -25,10 +25,21 @@ func main() {
 	}))
 
 	e.GET("/todos", getList)
+	e.GET("/todos/:id", getTask)
 	e.POST("/todos/add", addTask)
+	e.PUT("/todos/edit/:id", editTask)
+	e.PUT("/todos/status/:id", changeTaskStatus)
 	e.DELETE("/todos/:id", deleteTask)
 
 	e.Logger.Fatal(e.Start(":9090"))
+}
+
+func getTask(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "invalid request")
+	}
+	return c.JSON(http.StatusOK, todoList[id])
 }
 
 func getList(c echo.Context) error {
@@ -37,14 +48,41 @@ func getList(c echo.Context) error {
 
 func addTask(c echo.Context) error {
 	title := c.FormValue("title")
-	// @todo titleのチェック
+	if title == "" {
+		return c.JSON(http.StatusBadRequest, "invalid request")
+	}
 	todoList.Add(title)
 	return c.JSON(http.StatusOK, "ok") // @todo まともなレスポンス返す
 }
 
+func changeTaskStatus(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "invalid request")
+	}
+	todoList.ChangeStatus(id)
+	return c.JSON(http.StatusOK, "ok") // @todo まともなレスポンス返す
+}
+
+func editTask(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "invalid request")
+	}
+	title := c.FormValue("title")
+	if title == "" {
+		return c.JSON(http.StatusBadRequest, "invalid request")
+	}
+
+	todoList.Edit(id, title)
+	return c.JSON(http.StatusOK, "ok") // @todo まともなレスポンス返す
+}
+
 func deleteTask(c echo.Context) error {
-	// @todo intで取れてるかのチェック
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "invalid request")
+	}
 	todoList.Remove(id)
 	return c.JSON(http.StatusOK, "ok") // @todo まともなレスポンス返す
 }
