@@ -17,11 +17,4 @@ dependencies:
 test:
     override:
       - yarn run build
-      - yarn run dev:
-          background: true
-      - sleep 5
       - yarn run e2e
-    post:
-      - mv test/reports $CIRCLE_ARTIFACTS
-      - mkdir -p test/screenshots
-      - mv test/screenshots $CIRCLE_ARTIFACTS
