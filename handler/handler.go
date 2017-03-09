@@ -36,7 +36,7 @@ func (h *Handler) GetTask(c echo.Context) error {
 	if !ok {
 		return c.JSON(http.StatusNotFound,
 			resp{
-				Code:    http.StatusBadRequest,
+				Code:    http.StatusNotFound,
 				Message: fmt.Sprintf("ID: %s was not found", strconv.Itoa(id)),
 			})
 	}
