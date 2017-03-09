@@ -1,0 +1,27 @@
+general:
+  build_dir: _client
+machine:
+    node:
+      version: 7.4.0
+    post:
+      - curl -o- -L https://yarnpkg.com/install.sh | bash
+    timezone: Asia/Tokyo
+
+dependencies:
+    cache_directories:
+      - ~/.cache/yarn
+    pre:
+      - yarn --version
+    override:
+      - yarn install
+test:
+    override:
+      - yarn run build
+      - yarn run dev:
+          background: true
+      - sleep 5
+      - yarn run e2e
+    post:
+      - mv test/reports $CIRCLE_ARTIFACTS
+      - mkdir -p test/screenshots
+      - mv test/screenshots $CIRCLE_ARTIFACTS
