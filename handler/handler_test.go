@@ -108,3 +108,71 @@ func TestGetInvalidTask(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	}
 }
+
+func TestEditTask(t *testing.T) {
+	e := echo.New()
+
+	values := url.Values{}
+	values.Set("title", "yet another task name")
+
+	req, err := http.NewRequest(echo.PUT, "", strings.NewReader(values.Encode()))
+	if assert.NoError(t, err) {
+		// ホントは、echo.MIMEApplicationJSONにする
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/todos/edit/:id")
+		c.SetParamNames("id")
+		c.SetParamValues("1")
+
+		h := &Handler{}
+		h.Init()
+
+		// Assertions
+		if assert.NoError(t, h.EditTask(c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+	}
+}
+
+func TestChangeTaskStatus(t *testing.T) {
+	e := echo.New()
+
+	req, err := http.NewRequest(echo.PUT, "", nil)
+	if assert.NoError(t, err) {
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/todos/status/:id")
+		c.SetParamNames("id")
+		c.SetParamValues("1")
+
+		h := &Handler{}
+		h.Init()
+
+		// Assertions
+		if assert.NoError(t, h.ChangeTaskStatus(c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+	}
+}
+
+func TestDeleteTask(t *testing.T) {
+	e := echo.New()
+
+	req, err := http.NewRequest(echo.DELETE, "", nil)
+	if assert.NoError(t, err) {
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/todos/:id")
+		c.SetParamNames("id")
+		c.SetParamValues("1")
+
+		h := &Handler{}
+		h.Init()
+
+		// Assertions
+		if assert.NoError(t, h.DeleteTask(c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+	}
+}
